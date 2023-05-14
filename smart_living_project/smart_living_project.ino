@@ -23,118 +23,83 @@ void noise();
 int received = 48;
 int position_window = 0;
 int receiver = 7;
-int position_door = 0;
+int trig = 3;
+int aerisire = 9;
+int zgomot = 10;
+int temp = 11; 
 bool window_is_opened = false;
 bool door_is_opened = false;
 
 //objects
 Servo window_motor;
 Servo door_motor;
-IRrecv ir_controller(7);
 
 void setup(){
   Serial.begin(9600);
   pinMode(receiver,INPUT);
+  pinMode(trig, INPUT);
+  pinMode(aerisire, INPUT);
+  pinMode(zgomot, INPUT);
+  pinMode(temp, INPUT);
   IrReceiver.begin(IR_RECEIVE_PIN);
-  window_motor.attach(A3);
-  door_motor.attach(9);
+  window_motor.attach(7);
   window_motor.write(20);
   
 }
 
 void loop(){
- 
-  /*if(ir_controller.decode(&ir_results)){
-    //Serial.println(ir_results.value, HEX);
-    Serial.println(ir_controller.decodedIRData.command);
-           if (ir_controller.decodedIRData.command == 0x18)  { /// open window
-               if(position_window < 90){
-                 window_motor.write(position_window), position_window++;
-                 delay(15);
-                }
-                window_is_opened = true;
-            } else if (ir_controller.decodedIRData.command == 0x52) { // close window
-                if(position_window >= 1){
-                  window_motor.write(position_window), position_window--;
-                  delay(15);
-                }
-                if(position_window == 0)
-                  window_is_opened = false;
-            } else if (ir_controller.decodedIRData.command == 0x11) {
-               
-            } else if (ir_controller.decodedIRData.command == 0x11) {
-                
-            }
-        
-
-        ir_controller.resume();*/
-
-   if (IrReceiver.decode()) {
-    IrReceiver.resume();
-    Serial.println(IrReceiver.decodedIRData.command);}
-  
   if(Serial.available()){
     received = Serial.read();
   }
-  /*if(received == 49){ // open the window
-    if(position_window < 90){
-      window_motor.write(position_window), position_window++;
-      //delay(15);
+  if(received == 49)
+    {
+      if(position_window < 490){
+        window_motor.write(position_window);
+        position_window++;
+        //delay(15);
+      }
+      window_is_opened = true;
     }
-    window_is_opened = true;
-  }
-  if(received == 52){ // close the window
-    if(position_window >= 1){
-      window_motor.write(position_window), position_window--;
-      //delay(15);
-    }
-    if(position_window == 0)
-      window_is_opened = false;
-  }*/
-
   
-  delay(15);
-  ploua();
-  delay(15);
-
-  if(received==24)
-  {
-    if(position_window < 490){
-      window_motor.write(position_window);
-      position_window++;
-      //delay(15);
+    if(received == 52)
+    {
+      if(position_window >= 20){
+        window_motor.write(position_window), position_window--;
+        //delay(15);
+      }
+      if(position_window == 0)
+        window_is_opened = false;
     }
-    window_is_opened = true;
+  if(digitalRead(trig) == HIGH){
+    close_window_function();
+    delay(500);
   }
-
-  if(received==82)
-  {
-    if(position_window >= 20){
-      window_motor.write(position_window), position_window--;
-      //delay(15);
-    }
-    if(position_window == 0)
-      window_is_opened = false;
+  else if(digitalRead(aerisire) == HIGH){
+    close_window_function();
+    delay(500);
   }
+  else if(digitalRead(temp) == HIGH){
+    close_window_function();
+    delay(500);
+  } 
+  else if(digitalRead(zgomot) == HIGH){
+     close_window_function();
+    delay(500);
+  }
+  delay(20);
+  
+  
 }
+
 void close_window_function(){
-  while(position_window){
+  while(position_window >= 20){
       window_motor.write(position_window);
       position_window--;
   }
   window_is_opened = false;
 }
-void ploua(){
-  int raining_value = analogRead(pin_raining);
-  if(window_is_opened && raining_value < 400){
-    close_window_function();
-  }
-  
-}
-void noise(){
 
-  
-}
+
 /*
   commands:
   48 - nimic
